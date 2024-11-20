@@ -38,7 +38,7 @@ onMounted(() => {
         form.customer_name = url_cname;
     }
 
-    console.log(url_cid);
+    console.log(props.items);
  
     form.date = getToday();
 
@@ -54,6 +54,7 @@ onMounted(() => {
             down_payment: item.down_payment,
 
             quantity: 1,
+            user_id: item.user_id,
         });
     });
 });
@@ -85,7 +86,8 @@ const storePurchase = async () => {
                 loan_amount: item.loan_amount, 
                 property_value: item.property_value,
                 down_payment: item.down_payment,
-                price: item.price 
+                price: item.price,
+                user_id: item.user_id
             });
         //}
     });

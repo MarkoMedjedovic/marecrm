@@ -80,6 +80,8 @@ class ItemController extends Controller
      */
     public function update(UpdateItemRequest $request, Item $item)
     {
+
+        //dd($request->name)
         $item->name = $request->name;
         $item->memo = $request->memo;
 

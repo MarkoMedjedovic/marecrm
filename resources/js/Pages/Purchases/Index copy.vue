@@ -1,11 +1,34 @@
-<script setup>
+<script lang="ts" setup>
 import dayjs from "dayjs";
-import { onMounted, reactive } from "vue";
+import { onMounted, reactive, ref, createApp } from "vue";
 import FlashMessage from "@/Components/FlashMessage.vue";
 import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout.vue";
 import { Head, Link, router } from "@inertiajs/vue3";
 import Pagination from "@/Components/Pagination.vue";
-import { ref } from "vue";
+import ExportExcel from 'vue-3-export-excel'
+//import App from './App.vue'
+
+const app = createApp({});
+app.use(ExportExcel);
+
+const excelFields = {
+  'Tên': 'name',
+  'Tên đăng nhập': 'userName',
+  'Ngày sinh': 'birthDay',
+  'Số điện thoại': 'phoneNumber',
+  'Địa chỉ': 'address',
+  'Địa chỉ facebook': 'facebook'
+}
+const dataExcel = [
+  {
+    name: 'Phạm Thế Chiêm',
+    userName: 'chiempt',
+    birthDay: '27/09/1999',
+    phoneNumber: '0345361887',
+    address: 'Hoài Đức - Hà Nội',
+    facebook: 'https://www.facebook.com/chiem.dieu.18/'
+  }
+]
 
 const props = defineProps({
     orders: Object,
@@ -39,98 +62,7 @@ onMounted(() => {
     }
 });
 
-function jsonToCsv(jsonData) {
-    let csv = '';
-    
-    // Extract headers
-    const headers = Object.keys(jsonData[0]);
-    csv += headers.join(',') + '\n';
 
-    console.log(csv);
-    
-    // Extract values
-    jsonData.forEach(obj => {
-        const values = headers.map(header => obj[header]);
-        csv += values.join(',') + '\n';
-    });
-    
-    return csv;
-}
-
-function tableToCSV() {
-
-   //let oldStringify = JSON.stringify;
-   // JSON.stringify = (obj, replacer, space) => oldStringify(obj, replacer || ((key, value) => {if(key && value === obj) return "[recursive]"; return value;}), space);
- 
-   let titles__ = Object.entries(props.orders.data[0]);
-    let titles = [];
-
-    titles__.forEach((item) => {titles.push(item[0])});
-    console.log(titles);
-
-    let allData = [];
-
-    allData[0]=titles;
-
-    for(var i=0;i<props.orders.data.length;i++){
-        let data__ = Object.entries(props.orders.data[i]);
-        let data = [];
-        let cnt = 0;
-        data__.forEach((item) => {
-            data.push(item[1]);
-            cnt++;
-            /*if(cnt!=2){
-                data+=',';
-            }*/
-        });
-        //console.log(data);
-        //data = data.replaceAll(' ', '..');
-        allData[i+1]=data;
-    }
-
-    console.log(allData);
-
-    const rows = allData;
-
-    let csvContent = "data:text/csv;charset=utf-8," 
-        + rows.map(e => e.join(",")).join("\n");
-
-    var encodedUri = encodeURI(csvContent);
-    window.open(encodedUri);
-
-    
-    //console.log(allData);
-  
-    // Call this function to download csv file  
-    //downloadCSVFile(allData);
-}
-
-function downloadCSVFile(csv_data) {
-
-    // Create CSV file object and feed
-    // our csv_data into it
-    let CSVFile = new Blob([csv_data], {
-        type: "text/csv"
-    });
-
-    // Create to temporary link to initiate
-    // download process
-    let temp_link = document.createElement('a');
-
-    // Download csv file
-    temp_link.download = "GfG.csv";
-    let url = window.URL.createObjectURL(CSVFile);
-    temp_link.href = url;
-
-    // This link should not be displayed
-    temp_link.style.display = "none";
-    document.body.appendChild(temp_link);
-
-    // Automatically click the link to
-    // trigger download
-    temp_link.click();
-    document.body.removeChild(temp_link);
-}
 
 </script>
 
@@ -175,9 +107,16 @@ function downloadCSVFile(csv_data) {
                                             </button>
 
                                             <button class="ml-4 bg-blue-300 text-white py-2 px-6" 
-                                            :onclick="tableToCSV">
+                                            onclick="">
                                                 download CSV
                                             </button>
+                                            <export-excel> 
+                                                :data="dataExcel"
+                                                :fields="excelFields"
+                                                :title="`Thông tin cá nhân`"
+                                                :name="`Thong_tin_ca_nhan_pham_the_chiem.xls`">
+                                                <button>Download Excel</button>
+                                            </export-excel>
                                         </div>
                                     </div><br>
 
@@ -186,7 +125,7 @@ function downloadCSVFile(csv_data) {
                                             <tr>
                                                 <th
                                                     class="px-4 py-3 title-font tracking-wider font-medium text-gray-900 text-sm bg-gray-100 rounded-tl rounded-bl">
-                                                    Order id
+                                                    Id
                                                 </th>
                                                 <th
                                                     class="px-4 py-3 title-font tracking-wider font-medium text-gray-900 text-sm bg-gray-100">

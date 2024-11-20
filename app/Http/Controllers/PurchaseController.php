@@ -34,7 +34,8 @@ class PurchaseController extends Controller
             }
         }
         $customers = Customer::select('id', 'name', 'nickname', 'birthday')->get();
-        $items = Item::select('id', 'name', 'type', 'loan_amount', 'property_value', 'down_payment', 'price')
+        $items = Item::select('id', 'name', 'type', 'loan_amount', 'property_value', 
+        'down_payment', 'price','customer_id','user_id')
             ->where('is_selling', true)
             ->where('customer_id', $customer_id)//!! 0 za prototype items
             ->get();
@@ -96,6 +97,7 @@ class PurchaseController extends Controller
      */
     public function store(StorePurchaseRequest $request)
     {
+        $addMessage = '';
         DB::beginTransaction();
         try {
             //dd( $request->items);
@@ -104,40 +106,58 @@ class PurchaseController extends Controller
 
             $count__ = Item::select('*')->where('customer_id', $request->customer_id)->get();
             //dd($count__);
+            
             if(count($count__)>0){
                 foreach ($request->items as $item) {
-                 
-                    Item::findOrFail($item['id'])->update([
-                        'customer_id' => $request->customer_id,
-                        'user_id' => Auth::id(),
-                        'status' => $request->status,
+                    //dd("a user=".$item['user_id']."?".Auth::id()."=".($item['user_id'] == Auth::id())." item=".$item['id']);
+                    if($item['user_id'] == Auth::id()){
+                        Item::findOrFail($item['id'])->update([
+                            'customer_id' => $request->customer_id,
+                            'user_id' => Auth::id(),
+                            'status' => $request->status,
 
-                        'name' => $item['type'].' loan - c_id:'.$request->customer_id,
-                        'type' => $item['type'],
-                        'loan_amount' => $item['loan_amount'],
-                        'property_value' => $item['property_value'],
-                        'down_payment' => $item['down_payment'],
-                        'memo' => '',
-                        'price' => $item['price'],
-                    ]);
+                            'name' => $item['type'].' loan - c_id:'.$request->customer_id,
+                            'type' => $item['type'],
+                            'loan_amount' => $item['loan_amount'],
+                            'property_value' => $item['property_value'],
+                            'down_payment' => $item['down_payment'],
+                            'memo' => '',
+                            'price' => $item['price'],
+                        ]);
+                    }
+                    else{
+                        $addMessage = 'You can not do entries for other advisers.';
+                        throw ValidationException::withMessages([
+                            'You can not do entries for other advisers.',
+                        ]);
+                    }
                     DB::commit();
                 }
             }
             else{
                 foreach ($request->items as $item) {
-                    $itemNewRecords[] = Item::create([
-                        'customer_id' => $request->customer_id,
-                        'user_id' => Auth::id(),
-                        'status' => $request->status,
+                    //dd(" b user=".$item['user_id']."?".Auth::id()."=".($item['user_id'] == Auth::id()). " item=".$item['id']);
+                    if($item['user_id'] == Auth::id()){
+                        $itemNewRecords[] = Item::create([
+                            'customer_id' => $request->customer_id,
+                            'user_id' => Auth::id(),
+                            'status' => $request->status,
 
-                        'name' => $item['type'].' loan - c_id:'.$request->customer_id,
-                        'type' => $item['type'],
-                        'loan_amount' => $item['loan_amount'],
-                        'property_value' => $item['property_value'],
-                        'down_payment' => $item['down_payment'],
-                        'memo' => '',
-                        'price' => $item['price'],
-                    ]);
+                            'name' => $item['type'].' loan - c_id:'.$request->customer_id,
+                            'type' => $item['type'],
+                            'loan_amount' => $item['loan_amount'],
+                            'property_value' => $item['property_value'],
+                            'down_payment' => $item['down_payment'],
+                            'memo' => '',
+                            'price' => $item['price'],
+                        ]);
+                    }
+                    else{
+                        $addMessage = 'You can not do entries for other advisers.';
+                        throw ValidationException::withMessages([
+                            'You can not do entries for other advisers.',
+                        ]);
+                    }
                     DB::commit();
                 }
 
@@ -164,7 +184,7 @@ class PurchaseController extends Controller
                 'status' => 'error'
             ]);*/
             throw ValidationException::withMessages([
-                'message' => 'DB error!',
+                'message' => 'DB error! '.$addMessage
             ]);
             Log::info($e);
             Log::alert("Purchase store error");
