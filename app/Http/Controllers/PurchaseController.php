@@ -48,21 +48,33 @@ class PurchaseController extends Controller
         public function index(Request $request)
         {
             $customer_name = $request->query('search');
+            $advisers_filter = $request->query('advisersFilter');
+
+            //dd($advisers_filter);
 
             if($customer_name !== null){
 
                 $orders = Order::groupBy("id")->orderBy('created_at', 'DESC')
                 ->selectRaw('id, customer_id, customer_name, sum(subtotal) as total, status, created_at, 
-                adviser_id, adviser_name')
-                ->where('adviser_id', Auth::id())
-                ->where('customer_name', 'LIKE', "%{$customer_name}%")->paginate(50);
+                adviser_id, adviser_name');
+
+                if($advisers_filter=='1'){
+                    $orders = $orders->where('adviser_id', Auth::id());
+                }
+
+                $orders = $orders->where('customer_name', 'LIKE', "%{$customer_name}%")
+                ->paginate(50);
 
             }else{
                 $orders = Order::groupBy("id")->orderBy('created_at', 'DESC')
                 ->selectRaw('id, customer_id, customer_name, sum(subtotal) as total, status, created_at, 
-                adviser_id, adviser_name')
-                ->where('adviser_id', Auth::id())
-                ->paginate(50);
+                adviser_id, adviser_name');
+
+                if($advisers_filter=='1'){
+                    $orders = $orders->where('adviser_id', Auth::id());
+                }
+
+                $orders = $orders->paginate(50);
             }
 
             return Inertia::render('Purchases/Index', [

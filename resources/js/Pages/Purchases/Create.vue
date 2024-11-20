@@ -112,7 +112,7 @@ const quantity = [/*"0",*/ "1" /*, "2", "3", "4", "5", "6", "7", "8", "9"*/];
     <AuthenticatedLayout>
         <template #header>
             <h2 class="font-semibold text-xl text-gray-800 leading-tight">
-                {{form.customer_name}} Purchase Registration/Edit
+                Purchase Registration/Edit
             </h2>
         </template>
 

@@ -1,9 +1,9 @@
 <script setup>
 import dayjs from "dayjs";
-import { onMounted } from "vue";
+import { onMounted, reactive  } from "vue";
 import FlashMessage from "@/Components/FlashMessage.vue";
 import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout.vue";
-import { Head, Link, router } from "@inertiajs/vue3";
+import { Head, Link, router} from "@inertiajs/vue3";
 import Pagination from "@/Components/Pagination.vue";
 import { ref } from "vue";
 
@@ -15,22 +15,43 @@ const props = defineProps({
     console.log(' orders: '+ JSON.stringify(props.orders));
 });*/
 
+const advisersFilter = ref(1);
+
 const search = ref("");
 
 const searchPurchasesByCustomer = () => {
-    router.get(route("purchases.index", { search: search.value }));
+    router.get(route("purchases.index", 
+    { advisersFilter: advisersFilter.value,
+        search: search.value, 
+     }));
 };
+
+onMounted(() => { 
+    let params = new URLSearchParams(window.location.search);
+    let url_advisersFilter = params.get('advisersFilter');
+    let url_search = params.get('search');
+    if(url_advisersFilter!==null){
+        advisersFilter.value = url_advisersFilter;
+    }
+    if(url_search!==null){
+        search.value = url_search;
+    }
+});
 
 </script>
 
+
+
 <template>
     <Head title="Purchase history" />
-
+ 
+ 
     <AuthenticatedLayout>
         <template #header>
-            <h2 class="font-semibold text-xl text-gray-800 leading-tight">
-                My deals history
+            <h2 class="inline-block font-semibold text-xl text-gray-800 leading-tight">
+                Purchase history
             </h2>
+ 
         </template>
 
         <div class="py-12">
@@ -43,19 +64,30 @@ const searchPurchasesByCustomer = () => {
                                 <div
                                     class="lg:w-2/3 w-full mx-auto overflow-auto"
                                 >
-                                    <div>
-                                        <input
-                                            type="text"
-                                            name="search"
-                                            v-model="search"
-                                        />
-                                        <button
-                                            class="bg-blue-300 text-white py-2 px-2"
-                                            @click="searchPurchasesByCustomer"
-                                        >
-                                            Search by customer
-                                        </button>
-                                    </div><br>
+                                    <div class="content-center">
+                                        <div >
+                                                Advisers:
+                                                <label class="ml-7 inline"  for="one">One</label>
+                                                <input class="ml-1 inline" type="radio" name="advisersFilter" id="one" :value="1" v-model="advisersFilter" 
+                                                />
+                                                <label class="ml-4 inline" for="all">All</label>
+                                                <input class="ml-1 inline" type="radio" name="advisersFilter" id="all" :value="2" v-model="advisersFilter"
+                                                />
+
+                                                <input class="ml-7 ml-1 inline" 
+                                                    type="text"
+                                                    name="search"
+                                                    v-model="search"
+                                                    placeholder="Customer name"
+                                                />
+                                                <button
+                                                    class="ml-7 bg-blue-300 text-white py-2 px-6"
+                                                    @click="searchPurchasesByCustomer"
+                                                >
+                                                    Search
+                                                </button>
+                                        </div>
+                                     </div><br>
 
                                     <table
                                         class="table-auto w-full text-left whitespace-no-wrap"
