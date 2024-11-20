@@ -146,13 +146,6 @@ class PurchaseController extends Controller
                 }
                 DB::commit();
             }
-
-            /*throw ValidationException::withMessages([
-                'message' => 'Success!',
-            ]);*/
-            //return to_route('purchases.create');
-            return Redirect::to('/purchases/create?cid='.$request->customer_id.'&cname='.$request->customer_name);
-
         } catch (\Exception $e) {
             /*return to_route('purchases.create')->with([
                 'message' => 'DB error!',
@@ -165,6 +158,13 @@ class PurchaseController extends Controller
             Log::alert("Purchase store error");
             DB::rollBack();
         }
+
+        throw ValidationException::withMessages([
+            'message' => 'Success!',
+        ]);
+        //return to_route('purchases.create');
+        //return Redirect::to('/purchases/create?cid='.$request->customer_id.'&cname='.$request->customer_name);
+
     }
 
     /**
