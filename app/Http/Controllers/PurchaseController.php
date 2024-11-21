@@ -109,8 +109,8 @@ class PurchaseController extends Controller
             
             if(count($count__)>0){
                 foreach ($request->items as $item) {
-                    //dd("a user=".$item['user_id']."?".Auth::id()."=".($item['user_id'] == Auth::id())." item=".$item['id']);
-                    if($item['user_id'] == Auth::id()){
+                   //dd("a user=".$item['user_id']."?".Auth::id()."=".($item['user_id'] == Auth::id())." item=".$item['id']);
+                    if($item['user_id'] == '0' || $item['user_id'] == Auth::id()){
                         Item::findOrFail($item['id'])->update([
                             'customer_id' => $request->customer_id,
                             'user_id' => Auth::id(),
@@ -137,7 +137,7 @@ class PurchaseController extends Controller
             else{
                 foreach ($request->items as $item) {
                     //dd(" b user=".$item['user_id']."?".Auth::id()."=".($item['user_id'] == Auth::id()). " item=".$item['id']);
-                    if($item['user_id'] == Auth::id()){
+                    if($item['user_id'] == '0' || $item['user_id'] == Auth::id()){
                         $itemNewRecords[] = Item::create([
                             'customer_id' => $request->customer_id,
                             'user_id' => Auth::id(),
@@ -166,6 +166,7 @@ class PurchaseController extends Controller
                     'user_id' => Auth::id(),
                     'status' => $request->status,
                 ]);
+                DB::commit();
 
                 foreach ($itemNewRecords as $item) {
                     $purchase->items()->attach(
