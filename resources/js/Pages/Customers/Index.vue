@@ -136,7 +136,7 @@ const searchCustomers = () => {
                                                 <td
                                                     class="border-b-2 border-gray-200 px-4 py-3"
                                                 >
-                                                    <span v-if="customer.has_cash_loan == 0">
+                                                    <span v-if="customer.has_cash_loan == null">
                                                         no
                                                     </span>
                                                     <span v-else>
@@ -146,7 +146,8 @@ const searchCustomers = () => {
                                                 <td
                                                     class="border-b-2 border-gray-200 px-4 py-3"
                                                 >
-                                                    <span v-if="customer.has_home_loan == 0">
+
+                                                    <span v-if="customer.has_home_loan == null">
                                                         no
                                                     </span>
                                                     <span v-else>

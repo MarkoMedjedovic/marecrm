@@ -1,22 +1,11 @@
 <script setup>
-import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout.vue";
-import { Head } from "@inertiajs/vue3";
-import { onMounted, reactive, ref, computed, watch } from "vue";
-import { router } from "@inertiajs/vue3";
-import BreezeValidationErrors from "@/Components/ValidationErrors.vue";
-import { getToday } from "@/common";
-
 const props = defineProps({
     itemList: Object,
     totalPrice: Number
 });
-
 </script>
 
-
-
 <template>
-
     <!-- StorePurchaseComponent -->
     <div class="p-2 w-full">
         <table class="table-auto w-full text-left whitespace-no-wrap">

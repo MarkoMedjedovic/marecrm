@@ -20,8 +20,24 @@ class CustomerController extends Controller
     public function index(Request $request)
     {
         $search = $request->query('search');
+        /*$customers = Customer::searchCustomers($search)->select(
+            'id', 'first_name' , 'last_name' , 'email', 'tel', 
+            'has_cash_loan', 'has_home_loan')->paginate(50);*/
+
         $customers = Customer::searchCustomers($search)->select(
-            'id', 'first_name' , 'last_name' , 'email', 'tel', 'has_cash_loan', 'has_home_loan')->paginate(50);
+            'customers.id as id', 'first_name' , 'last_name' , 'email', 'tel', 
+            'items1.price as has_cash_loan', 'items2.price as has_home_loan')
+            //->leftJoin('items', 'items.customer_id', '=', 'customers.id')
+            ->leftJoin('items as items1', function($join) {
+                $join->on('items1.customer_id', '=', 'customers.id')
+                ->where('items1.type', '=', 'cash');
+              })
+            ->leftJoin('items as items2', function($join) {
+                $join->on('items2.customer_id', '=', 'customers.id')
+                ->where('items2.type', '=', 'home');
+            })
+            ->paginate(50);
+
     Log::info($search);
         /*dd($search);
         dd($customers);*/
@@ -78,21 +94,30 @@ class CustomerController extends Controller
     public function edit(Customer $customer)
     {
 
-        $items = Item::select('id', 'name', 'type', 'loan_amount', 'property_value', 'down_payment', 'price')->where('is_selling', true)->get();
+        $items = Item::select('id', 'name', 'type', 'loan_amount', 'property_value', 
+        'down_payment', 'price','customer_id','user_id')
+            ->where('is_selling', true)
+            ->where('customer_id', $customer->id)//!! 0 za prototype items
+            ->get();
+
+        $itemsZero = Item::select('id', 'name', 'type', 'loan_amount', 'property_value', 
+        'down_payment', 'price','customer_id','user_id')
+            ->where('is_selling', true)
+            ->where('customer_id', '0')//!! 0 za prototype items
+            ->get();
+
         $purchases = Purchase::select()->where([
             ['customer_id', '=',$customer->id],
             ['status', '=', 1],
         ])->get();
-
-  
  
         /*$orders = Order::groupBy("id")->orderBy('created_at', 'DESC')->selectRaw('id, customer_name, sum(subtotal) as total, status, created_at')
         ->where('customer_name', 'LIKE', "%{$customer_name}%")->paginate(50);*/
 
-
         return Inertia::render('Customers/Edit', [
             'customer' => $customer,
             'items' => $items,
+            'itemsZero' => $itemsZero,
             'purchases' => $purchases
         ]);
 

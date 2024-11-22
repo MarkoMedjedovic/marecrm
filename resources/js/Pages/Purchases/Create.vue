@@ -8,6 +8,8 @@ import { getToday } from "@/common";
 import MicroModal from "@/Components/MicroMordal.vue";
 import StorePurchaseComponent from "./StorePurchaseComponent.vue";
 
+
+// Loan editor stuff :
 const props = defineProps({
     customers: Array,
     items: Array,
@@ -28,6 +30,7 @@ watch(
         });
     }
 );
+
 
 onMounted(() => {
 
